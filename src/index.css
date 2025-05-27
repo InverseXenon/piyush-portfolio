@@ -1,0 +1,105 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: 'Montserrat', sans-serif;
+}
+
+/* Typewriter Animation */
+.typewriter {
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  border-right: 4px solid white;
+  animation: typing 3s steps(40, end), blink-caret 0.75s step-end infinite;
+}
+
+@keyframes typing {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+@keyframes blink-caret {
+  from, to { border-color: transparent; }
+  50% { border-color: white; }
+}
+
+/* Fade-In Animation for CTA */
+.fade-in {
+  animation: fadeIn 2s ease-in forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Circuit Pattern Background */
+.circuit-pattern {
+  background: radial-gradient(circle, rgba(0, 191, 255, 0.1) 1px, transparent 1px);
+  background-size: 20px 20px;
+  animation: float 10s ease-in-out infinite;
+  z-index: 0;
+}
+
+@keyframes float {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(10px, 10px); }
+}
+
+/* Neon Border for Photo */
+.neon-border {
+  position: relative;
+  border-radius: 8px;
+  box-shadow: 0 0 10px #ff00ff, 0 0 20px #00ffff, 0 0 30px #ff00ff, 0 0 40px #00ffff;
+  animation: neon-glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes neon-glow {
+  from {
+    box-shadow: 0 0 10px #ff00ff, 0 0 20px #00ffff, 0 0 30px #ff00ff, 0 0 40px #00ffff;
+  }
+  to {
+    box-shadow: 0 0 20px #00ffff, 0 0 30px #ff00ff, 0 0 40px #00ffff, 0 0 50px #ff00ff;
+  }
+}
+
+/* Preloader Animation */
+.loader {
+  border: 8px solid #f3f3f3;
+  border-top: 8px solid #3498db;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Counter Animation */
+.counter {
+  display: inline-block;
+  animation: count-up 2s ease-in-out forwards;
+}
+
+@keyframes count-up {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* Slower Carousel Animation */
+.animate-slide-slow {
+  display: flex;
+  animation: slide-slow 40s linear infinite;
+}
+
+@keyframes slide-slow {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
