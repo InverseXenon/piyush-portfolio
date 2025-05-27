@@ -150,27 +150,25 @@ function App() {
 
       {/* About Section with Photo Placeholder */}
       <section id="about" className="py-20 pt-24">
-        <div className="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl w-full">
-          <h2 className="text-4xl font-bold mb-8 text-center">About Me</h2>
-          <div className="flex flex-col md:flex-row items-center gap-8">
-            <div className="w-48 h-48 md:w-64 md:h-64 flex-shrink-0">
-              <div className="w-full h-full neon-border flex items-center justify-center rounded-lg">
-                <img src="../public/Piyush.jpg" alt="" />
-              </div>
-            </div>
-            <div className="flex-1">
-              <p className="text-lg">
-                I’m a third-year B.Tech student in Artificial Intelligence & Data Science at VESIT, Mumbai, with a CGPA of 8.61.
-                I’m currently interning at Panache Digilife, where I’m spearheading an IoT-based Air Quality Monitoring System using sensors, Firebase, and machine learning, achieving an accuracy of 85%.
-                I’ve earned certifications from Google Cloud Skills Boost (Cloud Computing Fundamentals, GenAI) and AWS Academy (Machine Learning Foundations), along with a Fundamentals of Deep Learning certification.
-                As a passionate participant in hackathons, I ranked in the top 8 out of 200+ teams at the Syrus Hackathon 2025 with my Women’s Services Platform and developed a real-time text editor for the Invictus Hackathon 2025, impacting 30+ users.
-                I also serve as the PR Head and Tournament Organizer for VESIT eSports, where I’ve boosted event participation by 30% through strategic promotion on Instagram and Discord, and coordinated 5+ tournaments for over 100 participants.
-                My interests lie in web development, AI, and backend systems, and I’m always eager to tackle challenging projects that drive innovation.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+  <div className="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl w-full">
+    <h2 className="text-4xl font-bold mb-8 text-center">About Me</h2>
+    <div className="flex flex-col md:flex-row items-center gap-8">
+      <div className="w-48 h-48 md:w-64 md:h-64 flex-shrink-0">
+        <img src="/Piyush.jpg" alt="Piyush Patil" className="w-full h-full object-cover rounded-lg neon-border" />
+      </div>
+      <div className="flex-1">
+        <p className="text-lg">
+          I’m a third-year B.Tech student in Artificial Intelligence & Data Science at VESIT, Mumbai, with a CGPA of 8.61.
+          I’m currently interning at Panache Digilife, where I’m spearheading an IoT-based Air Quality Monitoring System using sensors, Firebase, and machine learning, achieving an accuracy of 85%.
+          I’ve earned certifications from Google Cloud Skills Boost (Cloud Computing Fundamentals, GenAI) and AWS Academy (Machine Learning Foundations), along with a Fundamentals of Deep Learning certification.
+          As a passionate participant in hackathons, I ranked in the top 8 out of 200+ teams at the Syrus Hackathon 2025 with my Women’s Services Platform and developed a real-time text editor for the Invictus Hackathon 2025, impacting 30+ users.
+          I also serve as the PR Head and Tournament Organizer for VESIT eSports, where I’ve boosted event participation by 30% through strategic promotion on Instagram and Discord, and coordinated 5+ tournaments for over 100 participants.
+          My interests lie in web development, AI, and backend systems, and I’m always eager to tackle challenging projects that drive innovation.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
 
       {/* Skills Section - Card Layout */}
       <section id="skills" className="py-20 pt-24">
