@@ -2,8 +2,28 @@ import { useState, useEffect } from 'react';
 import emailjs from '@emailjs/browser';
 import { FaLinkedin, FaGithub, FaInstagram, FaBars, FaTimes } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
-import confetti from 'canvas-confetti';
 import './index.css';
+
+// Animation Variants for Smoother Transitions
+const sectionVariants = {
+  hidden: { opacity: 0, y: 50, scale: 0.98 },
+  visible: { 
+    opacity: 1, 
+    y: 0, 
+    scale: 1, 
+    transition: { 
+      duration: 0.8, 
+      ease: 'easeOut',
+      when: "beforeChildren",
+      staggerChildren: 0.2 
+    }
+  },
+};
+
+const childVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } },
+};
 
 function App() {
   const [theme, setTheme] = useState('dark');
@@ -15,28 +35,41 @@ function App() {
   const [projectCount, setProjectCount] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [visitorCount, setVisitorCount] = useState(0);
-  const [quizStarted, setQuizStarted] = useState(false);
-  const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [score, setScore] = useState(0);
-  const [quizFinished, setQuizFinished] = useState(false);
 
-  const quizQuestions = [
-    {
-      question: "What is the primary source of energy for Earth's climate system?",
-      options: ["The Moon", "The Sun", "Black Holes", "Supernovae"],
-      correct: 1,
-    },
-    {
-      question: "Which AI technique is inspired by the human brain's structure?",
-      options: ["Decision Trees", "Neural Networks", "Rule-Based Systems", "Genetic Algorithms"],
-      correct: 1,
-    },
-    {
-      question: "What is the name of the first AI to beat a human at Go?",
-      options: ["Deep Blue", "Watson", "AlphaGo", "Siri"],
-      correct: 2,
-    },
+  // Typing Speed Test States
+  const [gameStarted, setGameStarted] = useState(false);
+  const [gameOver, setGameOver] = useState(false);
+  const [inputText, setInputText] = useState('');
+  const [startTime, setStartTime] = useState(null);
+  const [wpm, setWpm] = useState(0);
+  const [accuracy, setAccuracy] = useState(0);
+  const [currentText, setCurrentText] = useState('');
+  const [sessionRecords, setSessionRecords] = useState([]);
+
+  // List of Random Words
+  const words = [
+    'apple', 'blue', 'cat', 'dog', 'elephant', 'forest', 'green', 'house', 'ice', 'jump',
+    'kite', 'lion', 'moon', 'nest', 'ocean', 'park', 'queen', 'river', 'sun', 'tree',
+    'umbrella', 'violet', 'water', 'xray', 'yellow', 'zebra', 'bird', 'cloud', 'dance', 'echo'
   ];
+
+  // Generate Random Text (10 words)
+  const generateRandomText = () => {
+    let text = '';
+    for (let i = 0; i < 10; i++) {
+      const randomWord = words[Math.floor(Math.random() * words.length)];
+      text += randomWord + (i < 9 ? ' ' : '');
+    }
+    return text;
+  };
+
+  // Load Session Records
+  useEffect(() => {
+    const storedRecords = sessionStorage.getItem('typingRecords');
+    if (storedRecords) {
+      setSessionRecords(JSON.parse(storedRecords));
+    }
+  }, []);
 
   // Simulate Loading
   useEffect(() => {
@@ -112,38 +145,78 @@ function App() {
     setMenuOpen(!menuOpen);
   };
 
-  // Quiz Logic
-  const startQuiz = () => {
-    setQuizStarted(true);
-    setCurrentQuestion(0);
-    setScore(0);
-    setQuizFinished(false);
+  // Typing Speed Test Logic
+  const startGame = () => {
+    const randomText = generateRandomText();
+    setCurrentText(randomText);
+    setGameStarted(true);
+    setGameOver(false);
+    setInputText('');
+    setWpm(0);
+    setAccuracy(0);
+    setStartTime(Date.now());
   };
 
-  const handleAnswer = (index) => {
-    if (index === quizQuestions[currentQuestion].correct) {
-      setScore(score + 1);
-    }
-    const nextQuestion = currentQuestion + 1;
-    if (nextQuestion < quizQuestions.length) {
-      setCurrentQuestion(nextQuestion);
-    } else {
-      setQuizFinished(true);
-      if (score + 1 === quizQuestions.length) {
-        confetti({
-          particleCount: 100,
-          spread: 70,
-          origin: { y: 0.6 },
-        });
+  const handleInputChange = (e) => {
+    if (!gameStarted || gameOver) return;
+    const value = e.target.value;
+    setInputText(value);
+
+    // Check if typing is complete
+    if (value === currentText) {
+      setGameOver(true);
+      const endTime = Date.now();
+      const timeTaken = (endTime - startTime) / 1000 / 60; // in minutes
+      const words = currentText.split(/\s+/).length;
+      const calculatedWpm = Math.round(words / timeTaken);
+      setWpm(calculatedWpm);
+
+      // Calculate Accuracy
+      let correctChars = 0;
+      for (let i = 0; i < currentText.length; i++) {
+        if (value[i] === currentText[i]) {
+          correctChars++;
+        }
       }
+      const calculatedAccuracy = Math.round((correctChars / currentText.length) * 100);
+      setAccuracy(calculatedAccuracy);
+
+      // Save to Session Records
+      const newRecord = { wpm: calculatedWpm, accuracy: calculatedAccuracy, timestamp: new Date().toLocaleString() };
+      const updatedRecords = [...sessionRecords, newRecord].slice(-5); // Keep last 5 records
+      setSessionRecords(updatedRecords);
+      sessionStorage.setItem('typingRecords', JSON.stringify(updatedRecords));
     }
   };
 
-  const resetQuiz = () => {
-    setQuizStarted(false);
-    setCurrentQuestion(0);
-    setScore(0);
-    setQuizFinished(false);
+  const resetGame = () => {
+    setGameStarted(false);
+    setGameOver(false);
+    setInputText('');
+    setWpm(0);
+    setAccuracy(0);
+    setCurrentText('');
+  };
+
+  // Prevent Pasting
+  const handlePaste = (e) => {
+    e.preventDefault();
+    alert('Pasting is not allowed! Please type the text manually.');
+  };
+
+  // Render the text with character-by-character highlighting
+  const renderText = () => {
+    return currentText.split('').map((char, index) => {
+      let className = '';
+      if (index < inputText.length) {
+        className = inputText[index] === char ? 'text-green-500' : 'text-red-500';
+      }
+      return (
+        <span key={index} className={className}>
+          {char}
+        </span>
+      );
+    });
   };
 
   if (loading) {
@@ -155,7 +228,7 @@ function App() {
   }
 
   return (
-    <div className={`min-h-screen ${theme === 'dark' ? 'bg-gradient-to-br from-gray-800 via-gray-900 to-blue-900' : 'bg-gradient-to-br from-gray-100 via-gray-200 to-blue-100'} text-${theme === 'dark' ? 'white' : 'gray-900'} font-sans transition-all duration-500 starry-background`}>
+    <div className={`min-h-screen ${theme === 'dark' ? 'bg-gradient-to-br from-gray-800 via-gray-900 to-blue-900' : 'bg-gradient-to-br from-gray-100 via-gray-200 to-blue-100'} text-${theme === 'dark' ? 'white' : 'gray-900'} font-sans transition-all duration-500`}>
       {/* Navigation Bar - Glassmorphism with Hamburger */}
       <nav className={`fixed top-0 w-full ${theme === 'dark' ? 'bg-opacity-30 bg-gray-800' : 'bg-opacity-30 bg-gray-200'} backdrop-blur-md shadow-lg z-20`}>
         <div className="px-4 sm:px-6 lg:px-8">
@@ -205,29 +278,29 @@ function App() {
       <motion.section
         id="home"
         className="min-h-screen flex items-center justify-center relative overflow-hidden pt-16"
-        initial={{ opacity: 0, y: 50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
+        variants={sectionVariants}
+        initial="hidden"
+        animate="visible"
       >
         <div className="absolute inset-0 circuit-pattern opacity-20"></div>
         <div className="text-center px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full relative z-10">
-          <h2 className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-4 typewriter">
+          <motion.h2 variants={childVariants} className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-4 typewriter">
             Piyush Patil | AI & Data Science Innovator
-          </h2>
-          <p className="text-lg sm:text-xl md:text-2xl mb-4">
+          </motion.h2>
+          <motion.p variants={childVariants} className="text-lg sm:text-xl md:text-2xl mb-4">
             Building the future with innovative web and AI solutions.
-          </p>
-          <p className="text-base sm:text-lg md:text-xl text-gray-400 fade-in">
+          </motion.p>
+          <motion.p variants={childVariants} className="text-base sm:text-lg md:text-xl text-gray-400 fade-in">
             Let’s create something impactful together!
-          </p>
-          <div className="mt-6">
+          </motion.p>
+          <motion.div variants={childVariants} className="mt-6">
             <a href="/Piyush_Resume.pdf" download className="inline-block px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg transition">
               Download Resume
             </a>
-          </div>
-          <div className="mt-4 text-sm text-gray-400">
+          </motion.div>
+          <motion.div variants={childVariants} className="mt-4 text-sm text-gray-400">
             Visitors: <span className="font-bold">{visitorCount}</span>
-          </div>
+          </motion.div>
         </div>
       </motion.section>
 
@@ -235,18 +308,18 @@ function App() {
       <motion.section
         id="about"
         className="py-20 pt-24"
-        initial={{ opacity: 0, y: 50 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
+        variants={sectionVariants}
+        initial="hidden"
+        whileInView="visible"
         viewport={{ once: true }}
       >
         <div className="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl w-full">
-          <h2 className="text-4xl font-bold mb-8 text-center">About Me</h2>
+          <motion.h2 variants={childVariants} className="text-4xl font-bold mb-8 text-center">About Me</motion.h2>
           <div className="flex flex-col md:flex-row items-center gap-8">
-            <div className="w-48 h-48 md:w-64 md:h-64 flex-shrink-0">
+            <motion.div variants={childVariants} className="w-48 h-48 md:w-64 md:h-64 flex-shrink-0">
               <img src="/Piyush.jpg" alt="Piyush Patil" className="w-full h-full object-cover rounded-lg neon-border" />
-            </div>
-            <div className="flex-1">
+            </motion.div>
+            <motion.div variants={childVariants} className="flex-1">
               <p className="text-lg">
                 I’m a third-year B.Tech student in Artificial Intelligence & Data Science at VESIT, Mumbai, with a CGPA of 8.61.
                 I’m currently interning at Panache Digilife, where I’m spearheading an IoT-based Air Quality Monitoring System using sensors, Firebase, and machine learning, achieving an accuracy of 85%.
@@ -255,7 +328,7 @@ function App() {
                 I also serve as the PR Head and Tournament Organizer for VESIT eSports, where I’ve boosted event participation by 30% through strategic promotion on Instagram and Discord, and coordinated 5+ tournaments for over 100 participants.
                 My interests lie in web development, AI, and backend systems, and I’m always eager to tackle challenging projects that drive innovation.
               </p>
-            </div>
+            </motion.div>
           </div>
         </div>
       </motion.section>
@@ -264,26 +337,26 @@ function App() {
       <motion.section
         id="skills"
         className="py-20 pt-24"
-        initial={{ opacity: 0, y: 50 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
+        variants={sectionVariants}
+        initial="hidden"
+        whileInView="visible"
         viewport={{ once: true }}
       >
         <div className="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl w-full">
-          <h2 className="text-4xl font-bold mb-8 text-center">Skills</h2>
+          <motion.h2 variants={childVariants} className="text-4xl font-bold mb-8 text-center">Skills</motion.h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className={`p-6 rounded-lg shadow-lg transform hover:scale-105 transition ${theme === 'dark' ? 'bg-opacity-50 bg-gray-700' : 'bg-opacity-50 bg-gray-300'}`}>
+            <motion.div variants={childVariants} className={`p-6 rounded-lg shadow-lg transform hover:scale-105 transition ${theme === 'dark' ? 'bg-opacity-50 bg-gray-700' : 'bg-opacity-50 bg-gray-300'}`}>
               <h3 className="text-xl font-semibold mb-2">Languages</h3>
               <p>Python, Java, JavaScript, C, HTML5/CSS3</p>
-            </div>
-            <div className={`p-6 rounded-lg shadow-lg transform hover:scale-105 transition ${theme === 'dark' ? 'bg-opacity-50 bg-gray-700' : 'bg-opacity-50 bg-gray-300'}`}>
+            </motion.div>
+            <motion.div variants={childVariants} className={`p-6 rounded-lg shadow-lg transform hover:scale-105 transition ${theme === 'dark' ? 'bg-opacity-50 bg-gray-700' : 'bg-opacity-50 bg-gray-300'}`}>
               <h3 className="text-xl font-semibold mb-2">Frameworks & Libraries</h3>
               <p>React.js, Flask, Quill, OpenMap</p>
-            </div>
-            <div className={`p-6 rounded-lg shadow-lg transform hover:scale-105 transition ${theme === 'dark' ? 'bg-opacity-50 bg-gray-700' : 'bg-opacity-50 bg-gray-300'}`}>
+            </motion.div>
+            <motion.div variants={childVariants} className={`p-6 rounded-lg shadow-lg transform hover:scale-105 transition ${theme === 'dark' ? 'bg-opacity-50 bg-gray-700' : 'bg-opacity-50 bg-gray-300'}`}>
               <h3 className="text-xl font-semibold mb-2">Databases & Tools</h3>
               <p>MongoDB, Clerk, Git, GitHub, Firebase</p>
-            </div>
+            </motion.div>
           </div>
         </div>
       </motion.section>
@@ -292,14 +365,14 @@ function App() {
       <motion.section
         id="projects"
         className="py-20 pt-24"
-        initial={{ opacity: 0, y: 50 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
+        variants={sectionVariants}
+        initial="hidden"
+        whileInView="visible"
         viewport={{ once: true }}
       >
         <div className="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl w-full">
-          <h2 className="text-4xl font-bold mb-8 text-center">Projects</h2>
-          <div className="flex flex-wrap justify-center gap-8 mb-8">
+          <motion.h2 variants={childVariants} className="text-4xl font-bold mb-8 text-center">Projects</motion.h2>
+          <motion.div variants={childVariants} className="flex flex-wrap justify-center gap-8 mb-8">
             <div className="text-center">
               <p className="text-4xl font-bold counter">{userCount}+</p>
               <p>Users Impacted</p>
@@ -308,32 +381,32 @@ function App() {
               <p className="text-4xl font-bold counter">{projectCount}</p>
               <p>Projects Completed</p>
             </div>
-          </div>
+          </motion.div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className={`p-6 rounded-lg shadow-lg transform hover:scale-105 transition cursor-pointer ${theme === 'dark' ? 'bg-opacity-50 bg-gray-700' : 'bg-opacity-50 bg-gray-300'}`} onClick={() => openModal({
+            <motion.div variants={childVariants} className={`p-6 rounded-lg shadow-lg transform hover:scale-105 transition cursor-pointer ${theme === 'dark' ? 'bg-opacity-50 bg-gray-700' : 'bg-opacity-50 bg-gray-300'}`} onClick={() => openModal({
               title: 'Research Collaboration Hub',
               description: 'Built a real-time text editor using React.js and Quill for Invictus Hackathon 2025. Integrated Clerk for secure authentication. Locally deployed, impacted 30+ users.',
               details: 'This project was developed during a 48-hour hackathon, focusing on seamless collaboration for research teams. It features real-time editing and secure user authentication.'
             })}>
               <h3 className="text-xl font-semibold mb-2">Research Collaboration Hub</h3>
               <p>Built a real-time text editor using React.js and Quill for Invictus Hackathon 2025.</p>
-            </div>
-            <div className={`p-6 rounded-lg shadow-lg transform hover:scale-105 transition cursor-pointer ${theme === 'dark' ? 'bg-opacity-50 bg-gray-700' : 'bg-opacity-50 bg-gray-300'}`} onClick={() => openModal({
+            </motion.div>
+            <motion.div variants={childVariants} className={`p-6 rounded-lg shadow-lg transform hover:scale-105 transition cursor-pointer ${theme === 'dark' ? 'bg-opacity-50 bg-gray-700' : 'bg-opacity-50 bg-gray-300'}`} onClick={() => openModal({
               title: 'Women’s Services Platform',
               description: 'Developed a safety platform using React.js and OpenMap, reaching finals at Syrus Hackathon 2025. Tested by 20+ participants.',
               details: 'An all-in-one platform for women’s safety, featuring location-based services and emergency contacts. Ranked top 8 out of 200+ teams.'
             })}>
               <h3 className="text-xl font-semibold mb-2">Women’s Services Platform</h3>
               <p>Developed a safety platform using React.js and OpenMap for Syrus Hackathon 2025.</p>
-            </div>
-            <div className={`p-6 rounded-lg shadow-lg transform hover:scale-105 transition cursor-pointer ${theme === 'dark' ? 'bg-opacity-50 bg-gray-700' : 'bg-opacity-50 bg-gray-300'}`} onClick={() => openModal({
+            </motion.div>
+            <motion.div variants={childVariants} className={`p-6 rounded-lg shadow-lg transform hover:scale-105 transition cursor-pointer ${theme === 'dark' ? 'bg-opacity-50 bg-gray-700' : 'bg-opacity-50 bg-gray-300'}`} onClick={() => openModal({
               title: 'Deepfake Detection Model',
               description: 'Created a CNN-based model in Python, achieving 82% accuracy in detecting deepfakes.',
               details: 'Utilized convolutional neural networks to identify manipulated media, with a focus on video and image analysis. Achieved high accuracy through extensive training.'
             })}>
               <h3 className="text-xl font-semibold mb-2">Deepfake Detection Model</h3>
               <p>Created a CNN-based model in Python, achieving 82% accuracy.</p>
-            </div>
+            </motion.div>
           </div>
         </div>
       </motion.section>
@@ -342,94 +415,105 @@ function App() {
       <motion.section
         id="achievements"
         className="py-20 pt-24"
-        initial={{ opacity: 0, y: 50 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
+        variants={sectionVariants}
+        initial="hidden"
+        whileInView="visible"
         viewport={{ once: true }}
       >
         <div className="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl w-full">
-          <h2 className="text-4xl font-bold mb-8 text-center">Achievements</h2>
+          <motion.h2 variants={childVariants} className="text-4xl font-bold mb-8 text-center">Achievements</motion.h2>
           <div className="relative overflow-hidden">
             <div className="flex animate-slide-slow">
-              <div className={`flex-none w-full sm:w-1/2 md:w-1/3 p-4 ${theme === 'dark' ? 'bg-opacity-50 bg-gray-700' : 'bg-opacity-50 bg-gray-300'} rounded-lg shadow-lg mx-2`}>
+              <motion.div variants={childVariants} className={`flex-none w-full sm:w-1/2 md:w-1/3 p-4 ${theme === 'dark' ? 'bg-opacity-50 bg-gray-700' : 'bg-opacity-50 bg-gray-300'} rounded-lg shadow-lg mx-2`}>
                 <h3 className="text-xl font-semibold mb-2">Syrus Hackathon 2025</h3>
                 <p>Ranked top 8 out of 200+ teams for Women’s Services Platform.</p>
-              </div>
-              <div className={`flex-none w-full sm:w-1/2 md:w-1/3 p-4 ${theme === 'dark' ? 'bg-opacity-50 bg-gray-700' : 'bg-opacity-50 bg-gray-300'} rounded-lg shadow-lg mx-2`}>
+              </motion.div>
+              <motion.div variants={childVariants} className={`flex-none w-full sm:w-1/2 md:w-1/3 p-4 ${theme === 'dark' ? 'bg-opacity-50 bg-gray-700' : 'bg-opacity-50 bg-gray-300'} rounded-lg shadow-lg mx-2`}>
                 <h3 className="text-xl font-semibold mb-2">Certifications</h3>
                 <p>Google Cloud Skills Boost, AWS Academy, Deep Learning.</p>
-              </div>
-              <div className={`flex-none w-full sm:w-1/2 md:w-1/3 p-4 ${theme === 'dark' ? 'bg-opacity-50 bg-gray-700' : 'bg-opacity-50 bg-gray-300'} rounded-lg shadow-lg mx-2`}>
+              </motion.div>
+              <motion.div variants={childVariants} className={`flex-none w-full sm:w-1/2 md:w-1/3 p-4 ${theme === 'dark' ? 'bg-opacity-50 bg-gray-700' : 'bg-opacity-50 bg-gray-300'} rounded-lg shadow-lg mx-2`}>
                 <h3 className="text-xl font-semibold mb-2">Awakening the Scientist 2022</h3>
                 <p>Winner, recognized among 100+ participants.</p>
-              </div>
+              </motion.div>
               {/* Duplicate for Seamless Looping */}
-              <div className={`flex-none w-full sm:w-1/2 md:w-1/3 p-4 ${theme === 'dark' ? 'bg-opacity-50 bg-gray-700' : 'bg-opacity-50 bg-gray-300'} rounded-lg shadow-lg mx-2`}>
+              <motion.div variants={childVariants} className={`flex-none w-full sm:w-1/2 md:w-1/3 p-4 ${theme === 'dark' ? 'bg-opacity-50 bg-gray-700' : 'bg-opacity-50 bg-gray-300'} rounded-lg shadow-lg mx-2`}>
                 <h3 className="text-xl font-semibold mb-2">Syrus Hackathon 2025</h3>
                 <p>Ranked top 8 out of 200+ teams for Women’s Services Platform.</p>
-              </div>
-              <div className={`flex-none w-full sm:w-1/2 md:w-1/3 p-4 ${theme === 'dark' ? 'bg-opacity-50 bg-gray-700' : 'bg-opacity-50 bg-gray-300'} rounded-lg shadow-lg mx-2`}>
+              </motion.div>
+              <motion.div variants={childVariants} className={`flex-none w-full sm:w-1/2 md:w-1/3 p-4 ${theme === 'dark' ? 'bg-opacity-50 bg-gray-700' : 'bg-opacity-50 bg-gray-300'} rounded-lg shadow-lg mx-2`}>
                 <h3 className="text-xl font-semibold mb-2">Certifications</h3>
                 <p>Google Cloud Skills Boost, AWS Academy, Deep Learning.</p>
-              </div>
-              <div className={`flex-none w-full sm:w-1/2 md:w-1/3 p-4 ${theme === 'dark' ? 'bg-opacity-50 bg-gray-700' : 'bg-opacity-50 bg-gray-300'} rounded-lg shadow-lg mx-2`}>
+              </motion.div>
+              <motion.div variants={childVariants} className={`flex-none w-full sm:w-1/2 md:w-1/3 p-4 ${theme === 'dark' ? 'bg-opacity-50 bg-gray-700' : 'bg-opacity-50 bg-gray-300'} rounded-lg shadow-lg mx-2`}>
                 <h3 className="text-xl font-semibold mb-2">Awakening the Scientist 2022</h3>
                 <p>Winner, recognized among 100+ participants.</p>
-              </div>
+              </motion.div>
             </div>
           </div>
         </div>
       </motion.section>
 
-      {/* Mini-Game Section - AI Trivia Quiz */}
+      {/* Mini-Game Section - Typing Speed Test */}
       <motion.section
         id="mini-game"
         className="py-20 pt-24"
-        initial={{ opacity: 0, y: 50 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
+        variants={sectionVariants}
+        initial="hidden"
+        whileInView="visible"
         viewport={{ once: true }}
       >
         <div className="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl w-full">
-          <h2 className="text-4xl font-bold mb-8 text-center">AI Trivia Quiz</h2>
-          <div className={`p-6 rounded-lg shadow-lg ${theme === 'dark' ? 'bg-opacity-50 bg-gray-700' : 'bg-opacity-50 bg-gray-300'}`}>
-            {!quizStarted && !quizFinished && (
+          <motion.h2 variants={childVariants} className="text-4xl font-bold mb-8 text-center">Typing Speed Test</motion.h2>
+          <motion.div variants={childVariants} className={`p-6 rounded-lg shadow-lg ${theme === 'dark' ? 'bg-opacity-50 bg-gray-700' : 'bg-opacity-50 bg-gray-300'}`}>
+            {!gameStarted && !gameOver && (
               <div className="text-center">
-                <p className="mb-4">Test your knowledge with this AI and space-themed trivia quiz!</p>
-                <button onClick={startQuiz} className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg transition">
-                  Start Quiz
+                <p className="mb-4">Test your typing speed by typing the random words below as fast as you can! Pasting is disabled.</p>
+                <button onClick={startGame} className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg transition">
+                  Start Test
                 </button>
               </div>
             )}
-            {quizStarted && !quizFinished && (
+            {(gameStarted || gameOver) && (
               <div className="space-y-4">
-                <h3 className="text-xl font-semibold">{quizQuestions[currentQuestion].question}</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {quizQuestions[currentQuestion].options.map((option, index) => (
-                    <button
-                      key={index}
-                      onClick={() => handleAnswer(index)}
-                      className={`p-3 rounded-lg transition ${theme === 'dark' ? 'bg-gray-600 hover:bg-gray-500' : 'bg-gray-400 hover:bg-gray-500'}`}
-                    >
-                      {option}
+                <div className="p-4 bg-gray-800 rounded-lg font-mono text-lg whitespace-pre">
+                  {renderText()}
+                </div>
+                <textarea
+                  value={inputText}
+                  onChange={handleInputChange}
+                  onPaste={handlePaste}
+                  placeholder="Start typing here..."
+                  className={`w-full p-3 rounded-lg font-mono text-lg h-32 resize-none focus:outline-none ${theme === 'dark' ? 'bg-gray-700 text-white' : 'bg-gray-300 text-gray-900'}`}
+                  disabled={gameOver}
+                />
+                {gameOver && (
+                  <div className="text-center space-y-4">
+                    <h3 className="text-xl font-semibold">Test Complete!</h3>
+                    <p>WPM: {wpm}</p>
+                    <p>Accuracy: {accuracy}%</p>
+                    <button onClick={resetGame} className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg transition">
+                      Try Again
                     </button>
+                  </div>
+                )}
+              </div>
+            )}
+            {/* Session Records */}
+            {sessionRecords.length > 0 && (
+              <div className="mt-6">
+                <h3 className="text-xl font-semibold mb-4">Session Records (Last 5)</h3>
+                <div className="space-y-2">
+                  {sessionRecords.map((record, index) => (
+                    <div key={index} className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-gray-800' : 'bg-gray-200'}`}>
+                      <p>Attempt {index + 1} at {record.timestamp}</p>
+                      <p>WPM: {record.wpm}, Accuracy: {record.accuracy}%</p>
+                    </div>
                   ))}
                 </div>
               </div>
             )}
-            {quizFinished && (
-              <div className="text-center space-y-4">
-                <h3 className="text-xl font-semibold">Quiz Finished!</h3>
-                <p>
-                  You scored {score} out of {quizQuestions.length}!
-                  {score === quizQuestions.length && <span> Perfect score! 🎉</span>}
-                </p>
-                <button onClick={resetQuiz} className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg transition">
-                  Play Again
-                </button>
-              </div>
-            )}
-          </div>
+          </motion.div>
         </div>
       </motion.section>
 
@@ -461,15 +545,15 @@ function App() {
       <motion.section
         id="contact"
         className="py-20 pt-24"
-        initial={{ opacity: 0, y: 50 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
+        variants={sectionVariants}
+        initial="hidden"
+        whileInView="visible"
         viewport={{ once: true }}
       >
         <div className="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl w-full">
-          <h2 className="text-4xl font-bold mb-8 text-center">Contact</h2>
+          <motion.h2 variants={childVariants} className="text-4xl font-bold mb-8 text-center">Contact</motion.h2>
           <div className="flex flex-col md:flex-row gap-8">
-            <div className="flex-1">
+            <motion.div variants={childVariants} className="flex-1">
               <p className="text-lg mb-4">
                 Email: <a href="mailto:piyushpatil1741@gmail.com" className="text-blue-400">piyushpatil1741@gmail.com</a><br />
                 Phone: +91-9405302470<br />
@@ -486,15 +570,15 @@ function App() {
                   <FaInstagram />
                 </a>
               </div>
-            </div>
-            <div className="flex-1">
+            </motion.div>
+            <motion.div variants={childVariants} className="flex-1">
               <form onSubmit={sendEmail} className="space-y-4">
                 <input type="text" name="name" placeholder="Your Name" className={`w-full p-3 rounded-lg ${theme === 'dark' ? 'bg-gray-700 text-white' : 'bg-gray-300 text-gray-900'}`} required />
                 <input type="email" name="email" placeholder="Your Email" className={`w-full p-3 rounded-lg ${theme === 'dark' ? 'bg-gray-700 text-white' : 'bg-gray-300 text-gray-900'}`} required />
                 <textarea name="message" placeholder="Your Message" className={`w-full p-3 rounded-lg ${theme === 'dark' ? 'bg-gray-700 text-white' : 'bg-gray-300 text-gray-900'} h-32`} required></textarea>
                 <button type="submit" className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg transition">Send Message</button>
               </form>
-            </div>
+            </motion.div>
           </div>
         </div>
       </motion.section>
