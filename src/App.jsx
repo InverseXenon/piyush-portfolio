@@ -277,28 +277,28 @@ function App() {
       {/* Hero Section with Visitor Counter */}
       <motion.section
         id="home"
-        className="min-h-screen flex items-center justify-center relative overflow-hidden pt-16"
+        className="min-h-screen flex items-center justify-center relative overflow-hidden pt-16 px-2"
         variants={sectionVariants}
         initial="hidden"
         animate="visible"
       >
         <div className="absolute inset-0 circuit-pattern opacity-20"></div>
-        <div className="text-center px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full relative z-10">
-          <motion.h2 variants={childVariants} className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-4 typewriter">
+        <div className="text-center px-2 sm:px-4 lg:px-8 max-w-7xl mx-auto w-full relative z-10">
+          <motion.h2 variants={childVariants} className="text-xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold mb-4 typewriter whitespace-normal break-words leading-tight">
             Piyush Patil | AI & Data Science Innovator
           </motion.h2>
-          <motion.p variants={childVariants} className="text-lg sm:text-xl md:text-2xl mb-4">
+          <motion.p variants={childVariants} className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl mb-4 break-words leading-relaxed">
             Building the future with innovative web and AI solutions.
           </motion.p>
-          <motion.p variants={childVariants} className="text-base sm:text-lg md:text-xl text-gray-400 fade-in">
+          <motion.p variants={childVariants} className="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl text-gray-400 fade-in">
             Let’s create something impactful together!
           </motion.p>
           <motion.div variants={childVariants} className="mt-6">
-            <a href="/Piyush_Resume.pdf" download className="inline-block px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg transition">
+            <a href="/Piyush_Resume.pdf" download className="inline-block px-4 py-2 sm:px-6 sm:py-3 bg-blue-600 hover:bg-blue-700 rounded-lg transition text-sm sm:text-base">
               Download Resume
             </a>
           </motion.div>
-          <motion.div variants={childVariants} className="mt-4 text-sm text-gray-400">
+          <motion.div variants={childVariants} className="mt-4 text-xs sm:text-sm text-gray-400">
             Visitors: <span className="font-bold">{visitorCount}</span>
           </motion.div>
         </div>
@@ -313,13 +313,13 @@ function App() {
         whileInView="visible"
         viewport={{ once: true }}
       >
-        <div className="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl w-full">
-          <motion.h2 variants={childVariants} className="text-4xl font-bold mb-8 text-center">About Me</motion.h2>
-          <div className="flex flex-col md:flex-row items-center gap-8">
+        <div className="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl w-full text-center">
+          <motion.h2 variants={childVariants} className="text-4xl font-bold mb-8">About Me</motion.h2>
+          <div className="flex flex-col items-center gap-8">
             <motion.div variants={childVariants} className="w-48 h-48 md:w-64 md:h-64 flex-shrink-0">
-              <img src="/Piyush.jpg" alt="Piyush Patil" className="w-full h-full object-cover rounded-lg neon-border" />
+              <img src="/Piyush.jpg" alt="Piyush Patil" className="w-full h-full object-cover rounded-lg neon-border mx-auto" />
             </motion.div>
-            <motion.div variants={childVariants} className="flex-1">
+            <motion.div variants={childVariants} className="max-w-3xl">
               <p className="text-lg">
                 I’m a third-year B.Tech student in Artificial Intelligence & Data Science at VESIT, Mumbai, with a CGPA of 8.61.
                 I’m currently interning at Panache Digilife, where I’m spearheading an IoT-based Air Quality Monitoring System using sensors, Firebase, and machine learning, achieving an accuracy of 85%.
@@ -587,7 +587,7 @@ function App() {
       {showScrollTop && (
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="fixed bottom-8 right-8 p-4 bg-blue-600 hover:bg-blue-700 rounded-full shadow-lg transition"
+          className="scroll-top-button"
         >
           ↑
         </button>
