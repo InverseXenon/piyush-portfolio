@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import emailjs from '@emailjs/browser';
 import { FaLinkedin, FaGithub, FaInstagram, FaBars, FaTimes } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
+import confetti from 'canvas-confetti';
 import './index.css';
 
 // Animation Variants for Smoother Transitions
@@ -186,6 +187,15 @@ function App() {
       const updatedRecords = [...sessionRecords, newRecord].slice(-5); // Keep last 5 records
       setSessionRecords(updatedRecords);
       sessionStorage.setItem('typingRecords', JSON.stringify(updatedRecords));
+
+      // Trigger Confetti if WPM > 50
+      if (calculatedWpm > 50) {
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 },
+        });
+      }
     }
   };
 
@@ -465,18 +475,18 @@ function App() {
       >
         <div className="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl w-full">
           <motion.h2 variants={childVariants} className="text-4xl font-bold mb-8 text-center">Typing Speed Test</motion.h2>
-          <motion.div variants={childVariants} className={`p-6 rounded-lg shadow-lg ${theme === 'dark' ? 'bg-opacity-50 bg-gray-700' : 'bg-opacity-50 bg-gray-300'}`}>
+          <motion.div variants={childVariants} className={`p-4 sm:p-6 rounded-lg shadow-lg ${theme === 'dark' ? 'bg-opacity-50 bg-gray-700' : 'bg-opacity-50 bg-gray-300'}`}>
             {!gameStarted && !gameOver && (
               <div className="text-center">
-                <p className="mb-4">Test your typing speed by typing the random words below as fast as you can! Pasting is disabled.</p>
-                <button onClick={startGame} className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg transition">
+                <p className="mb-4 text-sm sm:text-base">Test your typing speed by typing the random words below as fast as you can! Pasting is disabled.</p>
+                <button onClick={startGame} className="px-4 py-2 sm:px-6 sm:py-3 bg-blue-600 hover:bg-blue-700 rounded-lg transition text-sm sm:text-base">
                   Start Test
                 </button>
               </div>
             )}
             {(gameStarted || gameOver) && (
               <div className="space-y-4">
-                <div className="p-4 bg-gray-800 rounded-lg font-mono text-lg whitespace-pre">
+                <div className="p-2 sm:p-4 bg-gray-800 rounded-lg font-mono text-sm sm:text-lg whitespace-pre-wrap break-words">
                   {renderText()}
                 </div>
                 <textarea
@@ -484,15 +494,18 @@ function App() {
                   onChange={handleInputChange}
                   onPaste={handlePaste}
                   placeholder="Start typing here..."
-                  className={`w-full p-3 rounded-lg font-mono text-lg h-32 resize-none focus:outline-none ${theme === 'dark' ? 'bg-gray-700 text-white' : 'bg-gray-300 text-gray-900'}`}
+                  className={`w-full p-2 sm:p-3 rounded-lg font-mono text-sm sm:text-lg h-24 sm:h-32 resize-none focus:outline-none ${theme === 'dark' ? 'bg-gray-700 text-white' : 'bg-gray-300 text-gray-900'}`}
                   disabled={gameOver}
                 />
                 {gameOver && (
                   <div className="text-center space-y-4">
-                    <h3 className="text-xl font-semibold">Test Complete!</h3>
-                    <p>WPM: {wpm}</p>
-                    <p>Accuracy: {accuracy}%</p>
-                    <button onClick={resetGame} className="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg transition">
+                    <h3 className="text-lg sm:text-xl font-semibold">Test Complete!</h3>
+                    <p className="text-sm sm:text-base">WPM: {wpm}</p>
+                    <p className="text-sm sm:text-base">Accuracy: {accuracy}%</p>
+                    {wpm > 50 && (
+                      <p className="text-sm sm:text-base text-yellow-400">🎉 Wow! You typed over 50 WPM! Enjoy the celebration!</p>
+                    )}
+                    <button onClick={resetGame} className="px-4 py-2 sm:px-6 sm:py-3 bg-blue-600 hover:bg-blue-700 rounded-lg transition text-sm sm:text-base">
                       Try Again
                     </button>
                   </div>
@@ -502,12 +515,12 @@ function App() {
             {/* Session Records */}
             {sessionRecords.length > 0 && (
               <div className="mt-6">
-                <h3 className="text-xl font-semibold mb-4">Session Records (Last 5)</h3>
+                <h3 className="text-lg sm:text-xl font-semibold mb-4">Session Records (Last 5)</h3>
                 <div className="space-y-2">
                   {sessionRecords.map((record, index) => (
-                    <div key={index} className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-gray-800' : 'bg-gray-200'}`}>
-                      <p>Attempt {index + 1} at {record.timestamp}</p>
-                      <p>WPM: {record.wpm}, Accuracy: {record.accuracy}%</p>
+                    <div key={index} className={`p-3 sm:p-4 rounded-lg ${theme === 'dark' ? 'bg-gray-800' : 'bg-gray-200'}`}>
+                      <p className="text-sm sm:text-base">Attempt {index + 1} at {record.timestamp}</p>
+                      <p className="text-sm sm:text-base">WPM: {record.wpm}, Accuracy: {record.accuracy}%</p>
                     </div>
                   ))}
                 </div>
