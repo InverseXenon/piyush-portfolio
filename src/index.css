@@ -96,7 +96,7 @@ body {
 /* Faster Carousel Animation */
 .animate-slide-slow {
   display: flex;
-  animation: slide-slow 15s linear infinite;
+  animation: slide-slow 10s linear infinite;
 }
 
 @keyframes slide-slow {
