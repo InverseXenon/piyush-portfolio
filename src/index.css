@@ -103,3 +103,47 @@ body {
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }
 }
+
+/* Existing styles assumed to be here */
+
+/* Starry Background */
+.starry-background {
+  position: relative;
+  overflow: hidden;
+}
+
+.starry-background::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.starry-background::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 200%;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"><circle cx="2" cy="2" r="1" fill="rgba(255,255,255,0.5)" /><circle cx="10" cy="10" r="1" fill="rgba(255,255,255,0.3)" /><circle cx="18" cy="18" r="1" fill="rgba(255,255,255,0.2)" /></svg>') repeat;
+  animation: twinkle 10s infinite linear;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes twinkle {
+  0% { transform: translateY(0); opacity: 0.8; }
+  100% { transform: translateY(-100%); opacity: 0.8; }
+}
+
+/* Ensure content is above the background */
+section, nav, button {
+  position: relative;
+  z-index: 1;
+}
