@@ -49,11 +49,16 @@ function App() {
   // EmailJS Form Submission
   const sendEmail = (e) => {
     e.preventDefault();
-    emailjs.send('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', {
-      name: e.target.name.value,
-      email: e.target.email.value,
-      message: e.target.message.value,
-    }, 'YOUR_PUBLIC_KEY')
+    emailjs.send(
+  import.meta.env.VITE_EMAILJS_SERVICE_ID,
+  import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+  {
+    name: e.target.name.value,
+    email: e.target.email.value,
+    message: e.target.message.value,
+  },
+  import.meta.env.VITE_EMAILJS_PUBLIC_KEY
+)
       .then(() => alert('Message sent successfully!'))
       .catch(() => alert('Failed to send message. Please try again.'));
     e.target.reset();
@@ -300,7 +305,7 @@ function App() {
                 <a href="https://github.com/InverseXenon" target="_blank" rel="noopener noreferrer" className="text-3xl hover:text-blue-400 transition">
                   <FaGithub />
                 </a>
-                <a href="https://instagram.com/your-username" target="_blank" rel="noopener noreferrer" className="text-3xl hover:text-blue-400 transition">
+                <a href="https://www.instagram.com/pee.you.shhh/" target="_blank" rel="noopener noreferrer" className="text-3xl hover:text-blue-400 transition">
                   <FaInstagram />
                 </a>
               </div>
