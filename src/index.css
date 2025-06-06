@@ -3,11 +3,11 @@
 @tailwind utilities;
 
 .loader {
-  border: 8px solid #f3f3f3;
-  border-top: 8px solid #3498db;
+  border: 6px solid #f3f3f3;
+  border-top: 6px solid #3498db;
   border-radius: 50%;
-  width: 50px;
-  height: 50px;
+  width: 40px;
+  height: 40px;
   animation: spin 1s linear infinite;
 }
 
@@ -22,7 +22,7 @@
   100% { transform: scale(1); }
 }
 
-.animate-pulse {
+.animate-pulse-dot {
   animation: pulse 2s infinite;
 }
 
@@ -70,12 +70,19 @@
 .tech-badge {
   display: inline-block;
   padding: 0.25rem 0.5rem;
-  margin-right: 0.5rem;
+  margin-right: 0.25rem;
   margin-top: 0.25rem;
   border-radius: 9999px;
   font-size: 0.75rem;
   line-height: 1rem;
   font-weight: 500;
+}
+
+@media (min-width: 640px) {
+  .tech-badge {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.875rem;
+  }
 }
 
 .tech-badge-react {
@@ -112,13 +119,13 @@
   100% {
     opacity: 1;
     transform: scale(1);
-    text-shadow: 0 0 15px rgba(59, 130, 246, 0.8), 0 0 30px rgba(59, 130, 246, 0.4);
+    text-shadow: 0 0 10px rgba(59, 130, 246, 0.8), 0 0 20px rgba(59, 130, 246, 0.4);
   }
 }
 
 @keyframes glowPulse {
-  0%, 100% { text-shadow: 0 0 15px rgba(59, 130, 246, 0.8), 0 0 30px rgba(59, 130, 246, 0.4); }
-  50% { text-shadow: 0 0 20px rgba(59, 130, 246, 1), 0 0 40px rgba(59, 130, 246, 0.6); }
+  0%, 100% { text-shadow: 0 0 10px rgba(59, 130, 246, 0.8), 0 0 20px rgba(59, 130, 246, 0.4); }
+  50% { text-shadow: 0 0 15px rgba(59, 130, 246, 1), 0 0 30px rgba(59, 130, 246, 0.6); }
 }
 
 .fade-zoom-glow {
@@ -141,7 +148,7 @@
 }
 
 .neon-border {
-  box-shadow: 0 0 10px #3b82f6, 0 0 20px #3b82f6, 0 0 30px #3b82f6;
+  box-shadow: 0 0 8px #3b82f6, 0 0 16px #3b82f6, 0 0 24px #3b82f6;
 }
 
 @keyframes slide-slow {
@@ -156,17 +163,17 @@
 
 .scroll-top-button {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
+  bottom: 16px;
+  right: 16px;
   background-color: #3b82f6;
   color: white;
-  width: 50px;
-  height: 50px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
+  font-size: 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   transition: opacity 0.3s, transform 0.3s;
   opacity: 0.8;
