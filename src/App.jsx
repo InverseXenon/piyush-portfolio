@@ -2,21 +2,22 @@ import { useState, useEffect } from 'react';
 import emailjs from '@emailjs/browser';
 import { FaLinkedin, FaGithub, FaInstagram, FaBars, FaTimes } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
+import Tilt from 'react-parallax-tilt';
 import confetti from 'canvas-confetti';
 import './index.css';
 
-// Animation Variants for Smoother Transitions
+// Animation Variants
 const sectionVariants = {
   hidden: { opacity: 0, y: 50, scale: 0.98 },
-  visible: { 
-    opacity: 1, 
-    y: 0, 
-    scale: 1, 
-    transition: { 
-      duration: 0.8, 
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      duration: 0.8,
       ease: 'easeOut',
       when: "beforeChildren",
-      staggerChildren: 0.2 
+      staggerChildren: 0.2
     }
   },
 };
@@ -24,6 +25,36 @@ const sectionVariants = {
 const childVariants = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } },
+};
+
+const popUpVariants = {
+  hidden: { opacity: 0, x: -50, scale: 0.8, rotate: -5 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    scale: 1,
+    rotate: 0,
+    transition: { duration: 0.4, ease: 'easeOut', type: 'spring', stiffness: 100 },
+    boxShadow: '0 10px 20px rgba(0, 0, 255, 0.2)'
+  },
+  exit: { opacity: 0, x: -50, scale: 0.8, rotate: -5, transition: { duration: 0.3, ease: 'easeIn' } },
+};
+
+const dotVariants = {
+  hidden: { scale: 0, opacity: 0 },
+  visible: {
+    scale: 1,
+    opacity: 1,
+    transition: { duration: 0.5, ease: 'easeOut' }
+  },
+};
+
+const lineVariants = {
+  hidden: { height: 0 },
+  visible: {
+    height: '100%',
+    transition: { duration: 1.5, ease: 'easeInOut' }
+  },
 };
 
 function App() {
@@ -36,6 +67,7 @@ function App() {
   const [projectCount, setProjectCount] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [visitorCount, setVisitorCount] = useState(0);
+  const [hoveredProject, setHoveredProject] = useState(null);
 
   // Typing Speed Test States
   const [gameStarted, setGameStarted] = useState(false);
@@ -47,14 +79,40 @@ function App() {
   const [currentText, setCurrentText] = useState('');
   const [sessionRecords, setSessionRecords] = useState([]);
 
-  // List of Random Words
   const words = [
     'apple', 'blue', 'cat', 'dog', 'elephant', 'forest', 'green', 'house', 'ice', 'jump',
     'kite', 'lion', 'moon', 'nest', 'ocean', 'park', 'queen', 'river', 'sun', 'tree',
     'umbrella', 'violet', 'water', 'xray', 'yellow', 'zebra', 'bird', 'cloud', 'dance', 'echo'
   ];
 
-  // Generate Random Text (10 words)
+  const project1 = {
+    title: 'Collaborative Research Paper Drafter',
+    description: 'Built a real-time text editor using React.js and Quill for Invictus Hackathon 2025. Integrated Clerk for secure authentication. Locally deployed, impacted 30+ users.',
+    details: 'This project was developed during a 48-hour hackathon, focusing on seamless collaboration for research teams. It features real-time editing and secure user authentication.',
+    github: 'https://github.com/InverseXenon/collaborato',
+    demo: null,
+    image: '/collaborative-research-placeholder.jpg'
+  };
+
+  const project2 = {
+    title: 'Astitva - Women’s Services Platform',
+    description: 'Developed a safety platform using React.js and OpenMap for Syrus Hackathon 2025. Tested by 20+ participants.',
+    details: 'An all-in-one platform for women’s safety, featuring location-based services and emergency contacts. Ranked top 8 out of 200+ teams.',
+    github: 'https://github.com/InverseXenon/Astitva',
+    demo: null,
+    image: '/astitva-safety-placeholder.jpg'
+  };
+
+  const project3 = {
+    title: 'Deepfake Detection Model',
+    description: 'Created a CNN-based model in Python, achieving 82% accuracy in detecting deepfakes.',
+    details: 'Utilized convolutional neural networks to identify manipulated media, with a focus on video and image analysis. Achieved high accuracy through extensive training.',
+    github: 'https://github.com/InverseXenon/deepfake-detector-frontend',
+    githubBackend: 'https://github.com/InverseXenon/deepfake-detector-backend',
+    demo: null,
+    image: '/deepfake-detector-placeholder.jpg'
+  };
+
   const generateRandomText = () => {
     let text = '';
     for (let i = 0; i < 10; i++) {
@@ -64,7 +122,6 @@ function App() {
     return text;
   };
 
-  // Load Session Records
   useEffect(() => {
     const storedRecords = sessionStorage.getItem('typingRecords');
     if (storedRecords) {
@@ -72,17 +129,14 @@ function App() {
     }
   }, []);
 
-  // Simulate Loading
   useEffect(() => {
     setTimeout(() => setLoading(false), 2000);
   }, []);
 
-  // Theme Toggle with Animation
   const toggleTheme = () => {
     setTheme(theme === 'dark' ? 'light' : 'dark');
   };
 
-  // Scroll-to-Top Visibility
   useEffect(() => {
     const handleScroll = () => {
       setShowScrollTop(window.scrollY > 300);
@@ -91,7 +145,6 @@ function App() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Animate User and Project Count
   useEffect(() => {
     const userInterval = setInterval(() => {
       setUserCount((prev) => (prev < 50 ? prev + 1 : 50));
@@ -105,7 +158,6 @@ function App() {
     };
   }, []);
 
-  // Visitor Counter
   useEffect(() => {
     const storedCount = localStorage.getItem('visitorCount');
     const newCount = storedCount ? parseInt(storedCount) + 1 : 1;
@@ -113,7 +165,6 @@ function App() {
     localStorage.setItem('visitorCount', newCount.toString());
   }, []);
 
-  // EmailJS Form Submission
   const sendEmail = (e) => {
     e.preventDefault();
     emailjs.send(
@@ -127,26 +178,28 @@ function App() {
       import.meta.env.VITE_EMAILJS_PUBLIC_KEY
     )
       .then(() => alert('Message sent successfully!'))
-      .catch(() => alert('Failed to send message. Please try again.'));
+      .catch((error) => {
+        console.error('Failed to send message:', error);
+        alert('Failed to send message. Please try again.');
+      });
     e.target.reset();
   };
 
-  // Open/Close Modal
   const openModal = (project) => {
     setSelectedProject(project);
     setModalOpen(true);
+    setHoveredProject(null);
   };
+
   const closeModal = () => {
     setModalOpen(false);
     setSelectedProject(null);
   };
 
-  // Toggle Hamburger Menu
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
   };
 
-  // Typing Speed Test Logic
   const startGame = () => {
     const randomText = generateRandomText();
     setCurrentText(randomText);
@@ -163,16 +216,14 @@ function App() {
     const value = e.target.value;
     setInputText(value);
 
-    // Check if typing is complete
     if (value === currentText) {
       setGameOver(true);
       const endTime = Date.now();
-      const timeTaken = (endTime - startTime) / 1000 / 60; // in minutes
+      const timeTaken = (endTime - startTime) / 1000 / 60;
       const words = currentText.split(/\s+/).length;
       const calculatedWpm = Math.round(words / timeTaken);
       setWpm(calculatedWpm);
 
-      // Calculate Accuracy
       let correctChars = 0;
       for (let i = 0; i < currentText.length; i++) {
         if (value[i] === currentText[i]) {
@@ -182,13 +233,11 @@ function App() {
       const calculatedAccuracy = Math.round((correctChars / currentText.length) * 100);
       setAccuracy(calculatedAccuracy);
 
-      // Save to Session Records
       const newRecord = { wpm: calculatedWpm, accuracy: calculatedAccuracy, timestamp: new Date().toLocaleString() };
-      const updatedRecords = [...sessionRecords, newRecord].slice(-5); // Keep last 5 records
+      const updatedRecords = [...sessionRecords, newRecord].slice(-5);
       setSessionRecords(updatedRecords);
       sessionStorage.setItem('typingRecords', JSON.stringify(updatedRecords));
 
-      // Trigger Confetti if WPM > 50
       if (calculatedWpm > 50) {
         confetti({
           particleCount: 100,
@@ -208,13 +257,11 @@ function App() {
     setCurrentText('');
   };
 
-  // Prevent Pasting
   const handlePaste = (e) => {
     e.preventDefault();
     alert('Pasting is not allowed! Please type the text manually.');
   };
 
-  // Render the text with character-by-character highlighting
   const renderText = () => {
     return currentText.split('').map((char, index) => {
       let className = '';
@@ -229,6 +276,13 @@ function App() {
     });
   };
 
+  const handleProjectKeyDown = (e, project) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      openModal(project);
+    }
+  };
+
   if (loading) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-gray-900">
@@ -239,12 +293,11 @@ function App() {
 
   return (
     <div className={`min-h-screen ${theme === 'dark' ? 'bg-gradient-to-br from-gray-800 via-gray-900 to-blue-900' : 'bg-gradient-to-br from-gray-100 via-gray-200 to-blue-100'} text-${theme === 'dark' ? 'white' : 'gray-900'} font-sans transition-all duration-500`}>
-      {/* Navigation Bar - Glassmorphism with Hamburger */}
       <nav className={`fixed top-0 w-full ${theme === 'dark' ? 'bg-opacity-30 bg-gray-800' : 'bg-opacity-30 bg-gray-200'} backdrop-blur-md shadow-lg z-20`}>
         <div className="px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
-              <h1 className="text-2xl font-bold">Piyush Patil</h1>
+              <h1 className="text-2xl font-bold">Piyush Patil </h1>
             </div>
             <div className="flex items-center lg:hidden">
               <button onClick={toggleTheme} className={`p-2 rounded-full ${theme === 'dark' ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-300 hover:bg-gray-400'} transition transform hover:rotate-180 duration-300 mr-4`}>
@@ -258,7 +311,7 @@ function App() {
               <a href="#home" className="hover:text-blue-400 transition">Home</a>
               <a href="#about" className="hover:text-blue-400 transition">About</a>
               <a href="#skills" className="hover:text-blue-400 transition">Skills</a>
-              <a href="#projects" className="hover:text-blue-400 transition">Projects</a>
+              <a href="#projects" className="hover:text-blue-400 transition">Major Projects</a>
               <a href="#achievements" className="hover:text-blue-400 transition">Achievements</a>
               <a href="#mini-game" className="hover:text-blue-400 transition">Mini-Game</a>
               <a href="#contact" className="hover:text-blue-400 transition">Contact</a>
@@ -268,14 +321,13 @@ function App() {
             </div>
           </div>
         </div>
-        {/* Mobile Menu */}
         {menuOpen && (
           <div className={`lg:hidden ${theme === 'dark' ? 'bg-opacity-90 bg-gray-800' : 'bg-opacity-90 bg-gray-200'} backdrop-blur-md`}>
             <div className="flex flex-col items-center space-y-4 py-4">
               <a href="#home" className="hover:text-blue-400 transition" onClick={toggleMenu}>Home</a>
               <a href="#about" className="hover:text-blue-400 transition" onClick={toggleMenu}>About</a>
               <a href="#skills" className="hover:text-blue-400 transition" onClick={toggleMenu}>Skills</a>
-              <a href="#projects" className="hover:text-blue-400 transition" onClick={toggleMenu}>Projects</a>
+              <a href="#projects" className="hover:text-blue-400 transition" onClick={toggleMenu}>Major Projects</a>
               <a href="#achievements" className="hover:text-blue-400 transition" onClick={toggleMenu}>Achievements</a>
               <a href="#mini-game" className="hover:text-blue-400 transition" onClick={toggleMenu}>Mini-Game</a>
               <a href="#contact" className="hover:text-blue-400 transition" onClick={toggleMenu}>Contact</a>
@@ -284,7 +336,6 @@ function App() {
         )}
       </nav>
 
-      {/* Hero Section with Visitor Counter */}
       <motion.section
         id="home"
         className="min-h-screen flex items-center justify-center relative overflow-hidden pt-16 px-2"
@@ -292,12 +343,17 @@ function App() {
         initial="hidden"
         animate="visible"
       >
-        <div className="absolute inset-0 circuit-pattern opacity-20"></div>
         <div className="text-center px-2 sm:px-4 lg:px-8 max-w-7xl mx-auto w-full relative z-10">
-          <motion.h2 variants={childVariants} className="text-xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold mb-4 typewriter whitespace-normal break-words leading-tight">
-            Piyush Patil | AI & Data Science Innovator
-          </motion.h2>
-          <motion.p variants={childVariants} className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl mb-4 break-words leading-relaxed">
+          <motion.div variants={childVariants}>
+            <h2 className="text-xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-extrabold mb-2 fade-zoom-glow leading-tight">
+              Piyush Patil 
+            </h2>
+            <br />
+            <h3 className="text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold mb-4 fade-zoom-glow-delayed leading-tight">
+                AI & Data Science Innovator
+            </h3>
+          </motion.div>
+          <motion.p variants={childVariants} className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl mb-4 leading-relaxed">
             Building the future with innovative web and AI solutions.
           </motion.p>
           <motion.p variants={childVariants} className="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl text-gray-400 fade-in">
@@ -314,7 +370,6 @@ function App() {
         </div>
       </motion.section>
 
-      {/* About Section */}
       <motion.section
         id="about"
         className="py-20 pt-24"
@@ -332,10 +387,10 @@ function App() {
             <motion.div variants={childVariants} className="max-w-3xl">
               <p className="text-lg">
                 I’m a third-year B.Tech student in Artificial Intelligence & Data Science at VESIT, Mumbai, with a CGPA of 8.61.
-                I’m currently interning at Panache Digilife, where I’m spearheading an IoT-based Air Quality Monitoring System using sensors, Firebase, and machine learning, achieving an accuracy of 85%.
-                I’ve earned certifications from Google Cloud Skills Boost (Cloud Computing Fundamentals, GenAI) and AWS Academy (Machine Learning Foundations), along with a Fundamentals of Deep Learning certification.
-                As a passionate participant in hackathons, I ranked in the top 8 out of 200+ teams at the Syrus Hackathon 2025 with my Women’s Services Platform and developed a real-time text editor for the Invictus Hackathon 2025, impacting 30+ users.
-                I also serve as the PR Head and Tournament Organizer for VESIT eSports, where I’ve boosted event participation by 30% through strategic promotion on Instagram and Discord, and coordinated 5+ tournaments for over 100 participants.
+                I’ve earned certifications from Google Cloud Skills Boost (Cloud Computing Fundamentals, GenAI), AWS Academy (Machine Learning Foundations), and a Fundamentals of Deep Learning certification.
+                As a passionate hackathon participant, I ranked in the top 8 out of 200+ teams at the Syrus Hackathon 2025 with my Women’s Services Platform (Astitva) and developed a real-time text editor for the Invictus Hackathon 2025, impacting 30+ users.
+                I also completed a Deepfake Detection Model project in early 2025, focusing on media analysis with CNNs.
+                I serve as the PR Head and Tournament Organizer for VESIT eSports, where I’ve boosted event participation by 30% through strategic promotion on Instagram and Discord, coordinating 5+ tournaments for over 100 participants.
                 My interests lie in web development, AI, and backend systems, and I’m always eager to tackle challenging projects that drive innovation.
               </p>
             </motion.div>
@@ -343,7 +398,6 @@ function App() {
         </div>
       </motion.section>
 
-      {/* Skills Section */}
       <motion.section
         id="skills"
         className="py-20 pt-24"
@@ -361,28 +415,27 @@ function App() {
             </motion.div>
             <motion.div variants={childVariants} className={`p-6 rounded-lg shadow-lg transform hover:scale-105 transition ${theme === 'dark' ? 'bg-opacity-50 bg-gray-700' : 'bg-opacity-50 bg-gray-300'}`}>
               <h3 className="text-xl font-semibold mb-2">Frameworks & Libraries</h3>
-              <p>React.js, Flask, Quill, OpenMap</p>
+              <p>React.js, Flask, Quill, OpenMap, Pandas</p>
             </motion.div>
             <motion.div variants={childVariants} className={`p-6 rounded-lg shadow-lg transform hover:scale-105 transition ${theme === 'dark' ? 'bg-opacity-50 bg-gray-700' : 'bg-opacity-50 bg-gray-300'}`}>
               <h3 className="text-xl font-semibold mb-2">Databases & Tools</h3>
-              <p>MongoDB, Clerk, Git, GitHub, Firebase</p>
+              <p>MongoDB, Clerk, Git, GitHub, Firebase, Tableau</p>
             </motion.div>
           </div>
         </div>
       </motion.section>
 
-      {/* Projects Section */}
       <motion.section
         id="projects"
-        className="py-20 pt-24"
+        className="py-20 pt-24 relative projects-bg-glow"
         variants={sectionVariants}
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}
       >
         <div className="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl w-full">
-          <motion.h2 variants={childVariants} className="text-4xl font-bold mb-8 text-center">Projects</motion.h2>
-          <motion.div variants={childVariants} className="flex flex-wrap justify-center gap-8 mb-8">
+          <motion.h2 variants={childVariants} className="text-4xl font-bold mb-8 text-center">Major Projects</motion.h2>
+          <motion.div variants={childVariants} className="flex flex-wrap justify-center gap-8 mb-12">
             <div className="text-center">
               <p className="text-4xl font-bold counter">{userCount}+</p>
               <p>Users Impacted</p>
@@ -392,36 +445,180 @@ function App() {
               <p>Projects Completed</p>
             </div>
           </motion.div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <motion.div variants={childVariants} className={`p-6 rounded-lg shadow-lg transform hover:scale-105 transition cursor-pointer ${theme === 'dark' ? 'bg-opacity-50 bg-gray-700' : 'bg-opacity-50 bg-gray-300'}`} onClick={() => openModal({
-              title: 'Research Collaboration Hub',
-              description: 'Built a real-time text editor using React.js and Quill for Invictus Hackathon 2025. Integrated Clerk for secure authentication. Locally deployed, impacted 30+ users.',
-              details: 'This project was developed during a 48-hour hackathon, focusing on seamless collaboration for research teams. It features real-time editing and secure user authentication.'
-            })}>
-              <h3 className="text-xl font-semibold mb-2">Research Collaboration Hub</h3>
-              <p>Built a real-time text editor using React.js and Quill for Invictus Hackathon 2025.</p>
+          <div className="relative max-w-5xl mx-auto">
+            <motion.div
+              className="absolute left-1/2 transform -translate-x-1/2 w-1 glow-line"
+              variants={lineVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+            ></motion.div>
+
+            {/* Project 1: Collaborative Research Paper Drafter */}
+            <motion.div
+              variants={childVariants}
+              className="relative mb-12 flex flex-col sm:flex-row items-start sm:items-center justify-center sm:justify-start"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+            >
+              <motion.div
+                className="absolute left-1/2 transform -translate-x-1/2 w-8 h-8 flex items-center justify-center"
+                variants={dotVariants}
+              >
+                <div className={`w-6 h-6 rounded-full ${theme === 'dark' ? 'bg-blue-600' : 'bg-blue-400'} animate-pulse sparkle transition-all duration-300 ${hoveredProject === 'research-hub' ? 'scale-150 shadow-lg shadow-blue-600/70' : ''}`}></div>
+              </motion.div>
+              <Tilt tiltMaxAngleX={25} tiltMaxAngleY={25} scale={1.05} transitionSpeed={450}>
+                <div
+                  className={`w-full sm:w-96 p-4 rounded-lg shadow-lg cursor-pointer ${theme === 'dark' ? 'bg-opacity-50 bg-gray-700' : 'bg-opacity-50 bg-gray-300'} sm:ml-12`}
+                  onMouseEnter={() => setHoveredProject('research-hub')}
+                  onMouseLeave={() => setHoveredProject(null)}
+                  onClick={() => openModal(project1)}
+                  onKeyDown={(e) => handleProjectKeyDown(e, project1)}
+                  tabIndex={0}
+                >
+                  <h3 className="text-lg font-semibold">Collaborative Research Paper Drafter</h3>
+                  <p className="text-sm text-gray-400">March 2, 2025</p>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    <span className="tech-badge tech-badge-react">React.js</span>
+                    <span className="tech-badge tech-badge-quill">Quill</span>
+                    <span className="tech-badge tech-badge-clerk">Clerk</span>
+                  </div>
+                </div>
+              </Tilt>
+              <AnimatePresence>
+                {hoveredProject === 'research-hub' && (
+                  <motion.div
+                    variants={popUpVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                    className="absolute left-0 sm:left-[calc(50%+12rem)] top-full sm:top-0 mt-4 sm:mt-0 z-10 w-full sm:w-96"
+                  >
+                    <div className={`p-4 rounded-lg shadow-lg ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'}`}>
+                      <img src="/collaborative-research-placeholder.png" alt="Collaborative Research Paper Drafter" className="w-full h-32 object-cover rounded-lg mb-2" />
+                      <p className="text-sm">Real-time text editor with secure authentication.</p>
+                      <a href="https://github.com/InverseXenon/collaborato" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-500 flex items-center text-sm mt-2">
+                        <FaGithub className="mr-1" /> GitHub
+                      </a>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </motion.div>
-            <motion.div variants={childVariants} className={`p-6 rounded-lg shadow-lg transform hover:scale-105 transition cursor-pointer ${theme === 'dark' ? 'bg-opacity-50 bg-gray-700' : 'bg-opacity-50 bg-gray-300'}`} onClick={() => openModal({
-              title: 'Women’s Services Platform',
-              description: 'Developed a safety platform using React.js and OpenMap, reaching finals at Syrus Hackathon 2025. Tested by 20+ participants.',
-              details: 'An all-in-one platform for women’s safety, featuring location-based services and emergency contacts. Ranked top 8 out of 200+ teams.'
-            })}>
-              <h3 className="text-xl font-semibold mb-2">Women’s Services Platform</h3>
-              <p>Developed a safety platform using React.js and OpenMap for Syrus Hackathon 2025.</p>
+
+            {/* Project 2: Astitva - Women’s Services Platform */}
+            <motion.div
+              variants={childVariants}
+              className="relative mb-12 flex flex-col sm:flex-row items-start sm:items-center justify-center sm:justify-end"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+            >
+              <motion.div
+                className="absolute left-1/2 transform -translate-x-1/2 w-8 h-8 flex items-center justify-center"
+                variants={dotVariants}
+              >
+                <div className={`w-6 h-6 rounded-full ${theme === 'dark' ? 'bg-blue-600' : 'bg-blue-400'} animate-pulse sparkle transition-all duration-300 ${hoveredProject === 'astitva' ? 'scale-150 shadow-lg shadow-blue-600/70' : ''}`}></div>
+              </motion.div>
+              <Tilt tiltMaxAngleX={25} tiltMaxAngleY={25} scale={1.05} transitionSpeed={450}>
+                <div
+                  className={`w-full sm:w-96 p-4 rounded-lg shadow-lg cursor-pointer ${theme === 'dark' ? 'bg-opacity-50 bg-gray-700' : 'bg-opacity-50 bg-gray-300'} sm:mr-12`}
+                  onMouseEnter={() => setHoveredProject('astitva')}
+                  onMouseLeave={() => setHoveredProject(null)}
+                  onClick={() => openModal(project2)}
+                  onKeyDown={(e) => handleProjectKeyDown(e, project2)}
+                  tabIndex={0}
+                >
+                  <h3 className="text-lg font-semibold">Astitva - Women’s Services Platform</h3>
+                  <p className="text-sm text-gray-400">March 29, 2025</p>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    <span className="tech-badge tech-badge-react">React.js</span>
+                    <span className="tech-badge tech-badge-openmap">OpenMap</span>
+                  </div>
+                </div>
+              </Tilt>
+              <AnimatePresence>
+                {hoveredProject === 'astitva' && (
+                  <motion.div
+                    variants={popUpVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                    className="absolute left-0 sm:left-auto sm:right-[calc(50%+12rem)] top-full sm:top-0 mt-4 sm:mt-0 z-10 w-full sm:w-96"
+                  >
+                    <div className={`p-4 rounded-lg shadow-lg ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'}`}>
+                      <img src="/astitva-safety-placeholder.jpg" alt="Astitva - Women’s Services Platform" className="w-full h-32 object-cover rounded-lg mb-2" />
+                      <p className="text-sm">Safety platform with location-based services.</p>
+                      <a href="https://github.com/InverseXenon/Astitva" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-500 flex items-center text-sm mt-2">
+                        <FaGithub className="mr-1" /> GitHub
+                      </a>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </motion.div>
-            <motion.div variants={childVariants} className={`p-6 rounded-lg shadow-lg transform hover:scale-105 transition cursor-pointer ${theme === 'dark' ? 'bg-opacity-50 bg-gray-700' : 'bg-opacity-50 bg-gray-300'}`} onClick={() => openModal({
-              title: 'Deepfake Detection Model',
-              description: 'Created a CNN-based model in Python, achieving 82% accuracy in detecting deepfakes.',
-              details: 'Utilized convolutional neural networks to identify manipulated media, with a focus on video and image analysis. Achieved high accuracy through extensive training.'
-            })}>
-              <h3 className="text-xl font-semibold mb-2">Deepfake Detection Model</h3>
-              <p>Created a CNN-based model in Python, achieving 82% accuracy.</p>
+
+            {/* Project 3: Deepfake Detection Model */}
+            <motion.div
+              variants={childVariants}
+              className="relative mb-12 flex flex-col sm:flex-row items-start sm:items-center justify-center sm:justify-start"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+            >
+              <motion.div
+                className="absolute left-1/2 transform -translate-x-1/2 w-8 h-8 flex items-center justify-center"
+                variants={dotVariants}
+              >
+                <div className={`w-6 h-6 rounded-full ${theme === 'dark' ? 'bg-blue-600' : 'bg-blue-400'} animate-pulse sparkle transition-all duration-300 ${hoveredProject === 'deepfake' ? 'scale-150 shadow-lg shadow-blue-600/70' : ''}`}></div>
+              </motion.div>
+              <Tilt tiltMaxAngleX={25} tiltMaxAngleY={25} scale={1.05} transitionSpeed={450}>
+                <div
+                  className={`w-full sm:w-96 p-4 rounded-lg shadow-lg cursor-pointer ${theme === 'dark' ? 'bg-opacity-50 bg-gray-700' : 'bg-opacity-50 bg-gray-300'} sm:ml-12`}
+                  onMouseEnter={() => setHoveredProject('deepfake')}
+                  onMouseLeave={() => setHoveredProject(null)}
+                  onClick={() => openModal(project3)}
+                  onKeyDown={(e) => handleProjectKeyDown(e, project3)}
+                  tabIndex={0}
+                >
+                  <h3 className="text-lg font-semibold">Deepfake Detection Model</h3>
+                  <p className="text-sm text-gray-400">Early 2025</p>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    <span className="tech-badge tech-badge-python">Python</span>
+                    <span className="tech-badge tech-badge-react">React.js</span>
+                  </div>
+                </div>
+              </Tilt>
+              <AnimatePresence>
+                {hoveredProject === 'deepfake' && (
+                  <motion.div
+                    variants={popUpVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                    className="absolute left-0 sm:left-[calc(50%+12rem)] top-full sm:top-0 mt-4 sm:mt-0 z-10 w-full sm:w-96"
+                  >
+                    <div className={`p-4 rounded-lg shadow-lg ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'}`}>
+                      <img src="/deepfake-detector-placeholder.jpg" alt="Deepfake Detection Model" className="w-full h-32 object-cover rounded-lg mb-2" />
+                      <p className="text-sm">CNN-based model with 82% accuracy.</p>
+                      <div className="flex flex-col space-y-2 mt-2">
+                        <a href="https://github.com/InverseXenon/deepfake-detector-frontend" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-500 flex items-center text-sm">
+                          <FaGithub className="mr-1" /> Frontend
+                        </a>
+                        <a href="https://github.com/InverseXenon/deepfake-detector-backend" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-500 flex items-center text-sm">
+                          <FaGithub className="mr-1" /> Backend
+                        </a>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </motion.div>
           </div>
         </div>
       </motion.section>
 
-      {/* Achievements Section */}
       <motion.section
         id="achievements"
         className="py-20 pt-24"
@@ -436,7 +633,7 @@ function App() {
             <div className="flex animate-slide-slow">
               <motion.div variants={childVariants} className={`flex-none w-full sm:w-1/2 md:w-1/3 p-4 ${theme === 'dark' ? 'bg-opacity-50 bg-gray-700' : 'bg-opacity-50 bg-gray-300'} rounded-lg shadow-lg mx-2`}>
                 <h3 className="text-xl font-semibold mb-2">Syrus Hackathon 2025</h3>
-                <p>Ranked top 8 out of 200+ teams for Women’s Services Platform.</p>
+                <p>Ranked top 8 out of 200+ teams for Astitva - Women’s Services Platform.</p>
               </motion.div>
               <motion.div variants={childVariants} className={`flex-none w-full sm:w-1/2 md:w-1/3 p-4 ${theme === 'dark' ? 'bg-opacity-50 bg-gray-700' : 'bg-opacity-50 bg-gray-300'} rounded-lg shadow-lg mx-2`}>
                 <h3 className="text-xl font-semibold mb-2">Certifications</h3>
@@ -446,10 +643,9 @@ function App() {
                 <h3 className="text-xl font-semibold mb-2">Awakening the Scientist 2022</h3>
                 <p>Winner, recognized among 100+ participants.</p>
               </motion.div>
-              {/* Duplicate for Seamless Looping */}
               <motion.div variants={childVariants} className={`flex-none w-full sm:w-1/2 md:w-1/3 p-4 ${theme === 'dark' ? 'bg-opacity-50 bg-gray-700' : 'bg-opacity-50 bg-gray-300'} rounded-lg shadow-lg mx-2`}>
                 <h3 className="text-xl font-semibold mb-2">Syrus Hackathon 2025</h3>
-                <p>Ranked top 8 out of 200+ teams for Women’s Services Platform.</p>
+                <p>Ranked top 8 out of 200+ teams for Astitva - Women’s Services Platform.</p>
               </motion.div>
               <motion.div variants={childVariants} className={`flex-none w-full sm:w-1/2 md:w-1/3 p-4 ${theme === 'dark' ? 'bg-opacity-50 bg-gray-700' : 'bg-opacity-50 bg-gray-300'} rounded-lg shadow-lg mx-2`}>
                 <h3 className="text-xl font-semibold mb-2">Certifications</h3>
@@ -464,7 +660,6 @@ function App() {
         </div>
       </motion.section>
 
-      {/* Mini-Game Section - Typing Speed Test */}
       <motion.section
         id="mini-game"
         className="py-20 pt-24"
@@ -512,7 +707,6 @@ function App() {
                 )}
               </div>
             )}
-            {/* Session Records */}
             {sessionRecords.length > 0 && (
               <div className="mt-6">
                 <h3 className="text-lg sm:text-xl font-semibold mb-4">Session Records (Last 5)</h3>
@@ -530,7 +724,6 @@ function App() {
         </div>
       </motion.section>
 
-      {/* Project Modal */}
       <AnimatePresence>
         {modalOpen && (
           <motion.div
@@ -548,13 +741,24 @@ function App() {
               <h3 className="text-2xl font-bold mb-4">{selectedProject.title}</h3>
               <p className="mb-4">{selectedProject.description}</p>
               <p className="mb-4">{selectedProject.details}</p>
+              <div className="flex flex-col space-y-2 mb-4">
+                {selectedProject.github && (
+                  <a href={selectedProject.github} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-500 flex items-center">
+                    <FaGithub className="mr-1" /> {selectedProject.githubBackend ? 'Frontend' : 'GitHub'}
+                  </a>
+                )}
+                {selectedProject.githubBackend && (
+                  <a href={selectedProject.githubBackend} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-500 flex items-center">
+                    <FaGithub className="mr-1" /> Backend
+                  </a>
+                )}
+              </div>
               <button onClick={closeModal} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg">Close</button>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Contact Section */}
       <motion.section
         id="contact"
         className="py-20 pt-24"
@@ -596,7 +800,6 @@ function App() {
         </div>
       </motion.section>
 
-      {/* Scroll-to-Top Button */}
       {showScrollTop && (
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
