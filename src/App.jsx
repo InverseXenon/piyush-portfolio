@@ -304,7 +304,7 @@ function App() {
             Let’s create something impactful together!
           </motion.p>
           <motion.div variants={childVariants} className="mt-6">
-            <a href="/Piyush_Resume.pdf" download className="inline-block px-4 py-2 sm:px-6 sm:py-3 bg-blue-600 hover:bg-blue-700 rounded-lg transition text-sm sm:text-base">
+            <a href="/New_Piyush_Resume.pdf" download className="inline-block px-4 py-2 sm:px-6 sm:py-3 bg-blue-600 hover:bg-blue-700 rounded-lg transition text-sm sm:text-base">
               Download Resume
             </a>
           </motion.div>
